@@ -1,4 +1,12 @@
-# X/Twitter Posting Skill
+---
+name: x-twitter
+description: "Post tweets and threads to X/Twitter via CDP on the CopperRiver visible browser tab."
+version: 1.0.0
+category: integration
+source: copperriver
+---
+
+# X/Twitter Posting
 
 Post tweets and threads to X/Twitter via CDP on the Electron visible browser tab.
 

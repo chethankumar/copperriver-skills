@@ -1,4 +1,12 @@
-# Computer Use - Quick Reference
+---
+name: computer-use-quick-ref
+description: "Quick reference for macOS desktop automation. The golden rule: always capture, identify element, act, verify."
+version: 1.0.0
+category: system
+source: copperriver
+---
+
+# Computer Use Quick Reference
 
 ## The Golden Rule
 **Always capture → identify element → act → verify**

@@ -1,4 +1,12 @@
-# Computer Use Skill
+---
+name: computer-use
+description: "Universal macOS desktop automation using accessibility APIs. Control any native application — click buttons, fill forms, read UI state — all while the user continues working."
+version: 1.0.0
+category: system
+source: copperriver
+---
+
+# Computer Use
 
 Universal macOS desktop automation that works in the background without stealing focus, cursor, or disrupting the user's workflow.
 

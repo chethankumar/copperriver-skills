@@ -1,18 +1,12 @@
 ---
-schemaVersion: 1
-name: full-output-skill
-description: >
-  Overrides default truncation behavior. Enforces complete code generation, bans placeholder
-  patterns, and handles token-limit splits cleanly. Apply to any task requiring exhaustive,
-  unabridged output — code files, multi-section documents, full implementations.
-trigger:
-  providers: ['*']
-  scope: user
-disable_model_invocation: false
-user_invocable: true
+name: full-output
+description: "Overrides default truncation behavior. Enforces complete code generation, bans placeholder patterns, and handles token-limit splits cleanly."
+version: 1.0.0
+category: coding
+source: claude-code
 ---
 
-# Full-Output Enforcement Skill
+# Full Output
 
 Treat every task as production-critical. A partial output is a broken output. Do not optimize for brevity — optimize for completeness. If the user asks for a full file, deliver the full file. If the user asks for 5 components, deliver 5 components. No exceptions.
 

@@ -1,4 +1,12 @@
-# Chat Search Skill
+---
+name: chat-search
+description: "Search and retrieve past CopperRiver conversations and messages from the local SQLite database."
+version: 1.0.0
+category: system
+source: copperriver
+---
+
+# Chat Search
 
 Search and retrieve past CopperRiver conversations and messages from the local SQLite database.
 

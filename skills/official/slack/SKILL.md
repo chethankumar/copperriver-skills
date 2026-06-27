@@ -1,4 +1,12 @@
-# Slack Skill
+---
+name: slack
+description: "Automate Slack via CDP. Send messages, read channels, and interact with Slack using a Python helper script."
+version: 1.0.0
+category: integration
+source: copperriver
+---
+
+# Slack Integration
 
 Automate Slack via CDP. All operations use a single Python helper script.
 

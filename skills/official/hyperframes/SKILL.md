@@ -1,4 +1,12 @@
-# HyperFrames Skill
+---
+name: hyperframes
+description: "Build animated video compositions using plain HTML + CSS + GSAP. The CLI (npx hyperframes render index.html) renders to MP4. Replaces the default video-artifact workflow."
+version: 1.0.0
+category: media
+source: copperriver
+---
+
+# Hyperframes
 
 Build animated video compositions using **plain HTML + CSS + GSAP**. The CLI (`npx hyperframes render index.html`) renders to MP4.
 

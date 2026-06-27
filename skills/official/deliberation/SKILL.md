@@ -1,15 +1,12 @@
 ---
 name: deliberation
-description: >
-  Multi-model deliberation for high-stakes or complex tasks. Triggers when accuracy matters
-  more than speed — research questions, architectural decisions, medical/legal/financial analysis,
-  fact-checking, comparing tradeoffs, debugging elusive issues, or any question where a single
-  model's blind spot could lead to a wrong answer. Also triggers on explicit user requests for
-  "multiple perspectives", "get a second opinion", "deliberate", "fusion", "panel", or "consensus".
-  Do NOT trigger for simple tasks (quick lookups, formatting, single-file edits, casual conversation).
+description: "Multi-model deliberation for high-stakes or complex tasks. Triggers when accuracy matters more than speed — research questions, architectural decisions, fact-checking, or any question where a single model's blind spot could lead to a wrong answer."
+version: 1.0.0
+category: system
+source: copperriver
 ---
 
-# Multi-Model Deliberation
+# Deliberation
 
 Get better answers by consulting multiple models in parallel, then synthesizing their strengths.
 

@@ -1,16 +1,9 @@
 ---
-schemaVersion: 1
 name: redesign-skill
-description: >
-  Upgrades existing websites and apps to premium quality. Audits current design, identifies
-  generic AI patterns, and applies high-end design standards without breaking functionality.
-  Works with any CSS framework or vanilla CSS. Use when a project already exists and needs
-  improvement, or when the user asks to "fix", "upgrade", "polish", or "redesign" an existing UI.
-trigger:
-  providers: ['*']
-  scope: user
-disable_model_invocation: false
-user_invocable: true
+description: "Upgrades existing websites and apps to premium quality. Audits current design, identifies improvements, and iteratively applies design fixes."
+version: 1.0.0
+category: coding
+source: claude-code
 ---
 
 # Redesign Skill

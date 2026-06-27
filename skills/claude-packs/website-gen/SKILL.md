@@ -1,20 +1,12 @@
 ---
-schemaVersion: 1
 name: website-gen
-description: >
-  Generates polished, production-quality HTML website artifacts from natural language prompts.
-  Produces landing pages, dashboards, case studies, pricing pages, slide decks, and more.
-  Based on the open-codesign design system — enforces anti-slop rules, oklch color space,
-  CSS custom properties, semantic HTML, and real content. Use whenever the user asks to
-  design, build, or prototype a website, landing page, UI, or visual artifact.
-trigger:
-  providers: ['*']
-  scope: user
-disable_model_invocation: false
-user_invocable: true
+description: "Generates polished, production-quality HTML website artifacts from natural language prompts. Produces landing pages, dashboards, case studies, pricing pages, and more."
+version: 1.0.0
+category: coding
+source: claude-code
 ---
 
-# Website Generation Skill
+# Website Gen
 
 You are an autonomous design partner. The user describes what they want — a landing page, a mobile screen, a one-page case study, a slide deck — and you respond with a single, self-contained, production-quality HTML artifact.
 

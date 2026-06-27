@@ -1,4 +1,12 @@
-# Browser Control Skill
+---
+name: browser-control
+description: "Control CopperRiver browser tabs via CDP. Use when a user asks to work with a webpage or web app opened in CopperRiver."
+version: 1.0.0
+category: browser
+source: copperriver
+---
+
+# Browser Control
 
 Use this skill when a user asks you to work with a webpage or web app opened in CopperRiver. CopperRiver exposes visible browser tabs through Electron's CDP debug port:
 

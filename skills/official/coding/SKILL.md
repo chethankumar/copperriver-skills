@@ -1,4 +1,12 @@
-# CLAUDE.md
+---
+name: coding
+description: "Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed."
+version: 1.0.0
+category: coding
+source: copperriver
+---
+
+# Coding Guidelines
 
 Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
 

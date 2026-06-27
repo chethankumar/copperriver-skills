@@ -1,4 +1,12 @@
-# MCP — Model Context Protocol Tool Bridge
+---
+name: mcp
+description: "Access any MCP server's tools directly from bash via mcporter. No agent code changes needed."
+version: 1.0.0
+category: integration
+source: copperriver
+---
+
+# MCP Tool Bridge
 
 Access any MCP server's tools directly from bash via `mcporter`. No agent code changes needed.
 

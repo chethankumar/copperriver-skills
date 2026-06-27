@@ -1,4 +1,12 @@
-# Notification Watcher Skill
+---
+name: notification-watcher
+description: "Watch macOS notifications for tracked apps. Uses log stream on usernoted, investigates content using tools, and suggests actions."
+version: 1.0.0
+category: system
+source: copperriver
+---
+
+# Notification Watcher
 
 ## Architecture (v5 - Log-Only, Zero Screenshots)
 1. `log stream` watches `usernoted` for notification deliveries (zero cost when idle)
