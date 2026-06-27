@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "copperriver-skills",
+  "version": "1.0.0",
+  "description": "Official and community skills for CopperRiver",
+  "owner": { "name": "CopperRiver" },
+  "plugins": [
+    { "name": "browser-control", "description": "Control browser tabs via CDP", "source": "./skills/official/browser-control.md", "category": "browser" },
+    { "name": "chat-search", "description": "Search past conversations from local SQLite", "source": "./skills/official/chat-search.md", "category": "system" },
+    { "name": "coding", "description": "Guidelines to reduce common LLM coding mistakes", "source": "./skills/official/coding-skill.md", "category": "coding" },
+    { "name": "computer-use", "description": "Universal macOS desktop automation", "source": "./skills/official/computer-use.md", "category": "system" },
+    { "name": "computer-use-quick-ref", "description": "Quick reference for desktop automation", "source": "./skills/official/computer-use-quick-ref.md", "category": "system" },
+    { "name": "deliberation", "description": "Multi-model deliberation for high-stakes tasks", "source": "./skills/official/deliberation", "category": "system" },
+    { "name": "hyperframes", "description": "Animated video compositions using HTML+CSS+GSAP", "source": "./skills/official/hyperframes", "category": "media" },
+    { "name": "mcp", "description": "Access any MCP server's tools from bash via mcporter", "source": "./skills/official/mcp.md", "category": "integration" },
+    { "name": "notification-watcher", "description": "Watch macOS notifications for tracked apps", "source": "./skills/official/notification-watcher.md", "category": "system" },
+    { "name": "slack", "description": "Automate Slack via CDP", "source": "./skills/official/slack.md", "category": "integration" },
+    { "name": "x-twitter", "description": "Post tweets and threads via CDP", "source": "./skills/official/x-twitter.md", "category": "integration" },
+    { "name": "pdf", "description": "PDF manipulation toolkit (Claude Code pack)", "source": "./skills/claude-packs/pdf", "category": "media" },
+    { "name": "pptx", "description": "Presentation creation and editing (Claude Code pack)", "source": "./skills/claude-packs/pptx", "category": "media" },
+    { "name": "docx", "description": "Document creation and editing (Claude Code pack)", "source": "./skills/claude-packs/docx", "category": "media" },
+    { "name": "xlsx", "description": "Spreadsheet creation and editing (Claude Code pack)", "source": "./skills/claude-packs/xlsx", "category": "media" },
+    { "name": "skill-creator", "description": "Guide for creating effective skills (Claude Code pack)", "source": "./skills/claude-packs/skill-creator", "category": "coding" },
+    { "name": "redesign", "description": "Upgrade existing websites to premium quality", "source": "./skills/claude-packs/redesign-skill", "category": "coding" },
+    { "name": "website-gen", "description": "Generate production-quality HTML websites", "source": "./skills/claude-packs/website-gen", "category": "coding" },
+    { "name": "full-output", "description": "Overrides default truncation for complete code generation", "source": "./skills/claude-packs/full-output-skill.md", "category": "coding" },
+    { "name": "design-taste", "description": "Senior UI/UX engineering guidelines (community)", "source": "./skills/community/Taste-skill.md", "category": "coding" }
+  ]
+}

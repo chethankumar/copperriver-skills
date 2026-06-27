@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@hyperframes/core/dist/hyperframe.runtime.iife.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@hyperframes/shader-transitions/dist/index.global.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- FILL: Google Fonts link -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono:wght@400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        /* === FILL: Your brand identity === */
+        --bg: #0a0a0d;
+        --ink: #f5f5f7;
+        --accent: #7c6cff;
+        --muted: #5a6270;
+        --accent-dim: #3d3680;
+        --font-display: "Space Grotesk", sans-serif;
+        --font-data: "JetBrains Mono", monospace;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--ink);
+      }
+
+      .scene {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+      }
+      .scene-content {
+        width: 100%;
+        height: 100%;
+        padding: 100px 160px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 24px;
+        box-sizing: border-box;
+        position: relative;
+        z-index: 1;
+      }
+      .clip {
+      }
+
+      .display {
+        font-family: var(--font-display);
+        font-weight: 700;
+        line-height: 1.1;
+      }
+      .body-text {
+        font-family: var(--font-display);
+        font-weight: 300;
+        line-height: 1.4;
+        color: var(--muted);
+      }
+      .data-text {
+        font-family: var(--font-data);
+        font-weight: 400;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .grain {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 50;
+        opacity: 0.18;
+        background-image:
+          radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1.2px),
+          radial-gradient(rgba(0, 0, 0, 0.18) 1px, transparent 1.2px);
+        background-size:
+          3px 3px,
+          5px 5px;
+        background-position:
+          0 0,
+          1px 2px;
+        mix-blend-mode: overlay;
+      }
+
+      .vignette {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 49;
+        background: radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.4) 100%);
+      }
+
+      /* === FILL: Per-scene styles below === */
+    </style>
+  </head>
+  <body>
+    <div
+      id="main"
+      data-composition-id="main"
+      data-width="1920"
+      data-height="1080"
+      data-start="0"
+      data-duration="25"
+    >
+      <!-- SCENE 1 -- visible from t=0 -->
+      <div class="scene clip" id="s1" data-start="0" data-duration="3" data-track-index="0">
+        <div class="grain"></div>
+        <div class="vignette"></div>
+        <div class="scene-content"><!-- FILL: hook --></div>
+      </div>
+
+      <!-- s2-s3: hard cuts, runtime-managed -->
+      <div
+        class="scene clip"
+        id="s2"
+        data-start="3"
+        data-duration="3"
+        data-track-index="0"
+        style="visibility:hidden;"
+      >
+        <div class="grain"></div>
+        <div class="vignette"></div>
+        <div class="scene-content"><!-- FILL: context --></div>
+      </div>
+
+      <div
+        class="scene clip"
+        id="s3"
+        data-start="6"
+        data-duration="3"
+        data-track-index="0"
+        style="visibility:hidden;"
+      >
+        <div class="grain"></div>
+        <div class="vignette"></div>
+        <div class="scene-content"><!-- FILL: build --></div>
+      </div>
+
+      <!-- s4-s5: SHADER ANCHOR pair (hero reveal) -->
+      <div
+        class="scene clip"
+        id="s4"
+        data-start="9"
+        data-duration="3.5"
+        data-track-index="0"
+        style="opacity:0;"
+      >
+        <div class="grain"></div>
+        <div class="vignette"></div>
+        <div class="scene-content"><!-- FILL: build-up before hero --></div>
+      </div>
+
+      <div
+        class="scene clip"
+        id="s5"
+        data-start="12.5"
+        data-duration="3"
+        data-track-index="0"
+        style="opacity:0;"
+      >
+        <div class="grain"></div>
+        <div class="vignette"></div>
+        <div class="scene-content"><!-- FILL: hero / key feature --></div>
+      </div>
+
+      <!-- s6: hard cut, runtime-managed -->
+      <div
+        class="scene clip"
+        id="s6"
+        data-start="15.5"
+        data-duration="3"
+        data-track-index="0"
+        style="visibility:hidden;"
+      >
+        <div class="grain"></div>
+        <div class="vignette"></div>
+        <div class="scene-content"><!-- FILL: proof / social proof --></div>
+      </div>
+
+      <!-- s7-s8: SHADER ANCHOR pair (CTA landing) -->
+      <div
+        class="scene clip"
+        id="s7"
+        data-start="18.5"
+        data-duration="3"
+        data-track-index="0"
+        style="opacity:0;"
+      >
+        <div class="grain"></div>
+        <div class="vignette"></div>
+        <div class="scene-content"><!-- FILL: build to close --></div>
+      </div>
+
+      <div
+        class="scene clip"
+        id="s8"
+        data-start="21.5"
+        data-duration="3.5"
+        data-track-index="0"
+        style="opacity:0;"
+      >
+        <div class="grain"></div>
+        <div class="vignette"></div>
+        <div class="scene-content"><!-- FILL: CTA / close --></div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      var tl = gsap.timeline({ paused: true });
+
+      // --- Non-anchor scene visibility toggles (REQUIRED) ---
+      tl.set("#s1", { autoAlpha: 0 }, 3.0);
+      tl.set("#s2", { autoAlpha: 1 }, 3.0);
+      tl.set("#s2", { autoAlpha: 0 }, 6.0);
+      tl.set("#s3", { autoAlpha: 1 }, 6.0);
+      tl.set("#s3", { autoAlpha: 0 }, 9.0);
+
+      // --- First shader anchor must be explicitly shown ---
+      tl.set("#s4", { opacity: 1 }, 9.0);
+
+      // s4, s5 are shader anchors — HyperShader manages their opacity after transitions
+      tl.set("#s6", { autoAlpha: 1 }, 15.5);
+      tl.set("#s6", { autoAlpha: 0 }, 18.5);
+
+      // --- Second shader group's first anchor must also be shown ---
+      tl.set("#s7", { opacity: 1 }, 18.5);
+      // s7, s8 are shader anchors — HyperShader manages their opacity after transitions
+
+      // === SCENE 1 (0-3s) — hook ===
+
+      // === SCENE 2 (3-6s) — hard cut ===
+
+      // === SCENE 3 (6-9s) — hard cut ===
+
+      // === SCENE 4 (9-12.5s) — SHADER ANCHOR, no exit tweens ===
+
+      // === SCENE 5 (12.5-15.5s) — shader from s4, hero reveal ===
+
+      // === SCENE 6 (15.5-18.5s) — hard cut ===
+
+      // === SCENE 7 (18.5-21.5s) — SHADER ANCHOR, no exit tweens ===
+
+      // === SCENE 8 (21.5-25s) — shader from s7, CTA. Final, exit OK ===
+
+      // --- Shader transitions: 2 key moments ---
+      // s4->s5 (hero reveal) and s7->s8 (CTA landing)
+      // HyperShader requires consecutive anchors, so we use two groups:
+      // Group 1: [s4, s5] with 1 transition
+      // Group 2: [s7, s8] with 1 transition
+      // But HyperShader only supports one init() call, so we chain them:
+      // [s4, s5] — shader — then runtime hard-cuts s5->s6->s7 — then [s7, s8]
+      // To satisfy the invariant with one init(), we include s5->s7 gap scenes.
+      // Simplest: just use one contiguous anchor block [s4, s5, s7, s8] with
+      // the s5->s7 transition as a real (visible) shader too. This gives you
+      // 3 shaders total — still well under the "every cut" anti-pattern.
+      window.HyperShader.init({
+        bgColor:
+          getComputedStyle(document.documentElement).getPropertyValue("--bg").trim() || "#0a0a0d",
+        scenes: ["s4", "s5", "s7", "s8"],
+        timeline: tl,
+        transitions: [
+          { time: 12.25, shader: "cinematic-zoom", duration: 0.5 },
+          { time: 15.25, shader: "light-leak", duration: 0.5 },
+          { time: 21.25, shader: "cross-warp-morph", duration: 0.5 },
+        ],
+      });
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
