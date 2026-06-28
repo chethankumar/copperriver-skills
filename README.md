@@ -57,20 +57,16 @@ The standard frontmatter (`name` + `description`) is the cross-tool compatible c
 
 ## Available Skills
 
-### Official (12)
+### Official (8)
 | Name | Category | Description |
 |------|----------|-------------|
 | browser-control | browser | Control CopperRiver browser tabs via CDP |
-| chat-search | system | Search past conversations from local SQLite |
 | coding | coding | Guidelines to reduce common LLM coding mistakes |
 | computer-use | system | Universal macOS desktop automation |
 | computer-use-quick-ref | system | Quick reference for desktop automation |
 | deliberation | system | Multi-model deliberation for high-stakes tasks |
 | hyperframes | media | Animated video compositions using HTML+CSS+GSAP |
 | mcp | integration | Access any MCP server's tools from bash |
-| notification-watcher | system | Watch macOS notifications for tracked apps |
-| slack | integration | Automate Slack via CDP |
-| x-twitter | integration | Post tweets and threads via CDP |
 
 ### Claude Code Packs (8)
 | Name | Category | Description |
