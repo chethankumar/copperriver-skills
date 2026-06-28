@@ -57,13 +57,12 @@ The standard frontmatter (`name` + `description`) is the cross-tool compatible c
 
 ## Available Skills
 
-### Official (8)
+### Official (7)
 | Name | Category | Description |
 |------|----------|-------------|
 | browser-control | browser | Control CopperRiver browser tabs via CDP |
 | coding | coding | Guidelines to reduce common LLM coding mistakes |
-| computer-use | system | Universal macOS desktop automation |
-| computer-use-quick-ref | system | Quick reference for desktop automation |
+| computer-use | system | Desktop automation via cua-driver |
 | deliberation | system | Multi-model deliberation for high-stakes tasks |
 | hyperframes | media | Animated video compositions using HTML+CSS+GSAP |
 | mcp | integration | Access any MCP server's tools from bash |

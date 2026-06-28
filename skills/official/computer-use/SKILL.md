@@ -1,476 +1,262 @@
 ---
 name: computer-use
-description: "Universal macOS desktop automation using accessibility APIs. Control any native application — click buttons, fill forms, read UI state — all while the user continues working."
-version: 1.0.0
+description: "Universal macOS desktop automation via cua-driver. Control any native app — click, type, read UI state — entirely in the background without stealing focus or moving the user's cursor. Use when automating Slack, Mail, Finder, or any macOS application."
+version: 2.0.0
 category: system
 source: copperriver
 ---
 
-# Computer Use
+# Computer Use (cua-driver)
 
-Universal macOS desktop automation that works in the background without stealing focus, cursor, or disrupting the user's workflow.
+Drive any native macOS application in the background — no focus steal, no cursor movement, no disruption. Powered by [cua-driver](https://github.com/trycua/cua).
 
-## What This Skill Does
+## Setup
 
-Control any native macOS application — click buttons, fill forms, read UI state, automate workflows — all while the user continues working. Unlike browser automation or AppleScript, this operates at the OS level using accessibility APIs and can interact with hidden, minimized, or background windows.
+```bash
+# Check if installed
+which cua-driver || echo "NOT INSTALLED"
 
-## Core Workflow
+# Install (macOS)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/trycua/cua/main/libs/cua-driver/scripts/install.sh)"
 
-**Always follow this pattern:**
-
-1. **Capture first** - Take a screenshot with element overlays
-2. **Identify target** - Find the element you need by its index number
-3. **Act** - Click, type, or interact using the element index
-4. **Verify** - Capture again to confirm the action worked
-
-**Never guess coordinates.** Always use element-based targeting.
-
-## Actions Reference
-
-### Capture (Read-Only)
-
-#### Take Screenshot with Element Overlays (Preferred)
-```json
-{
-  "action": "capture",
-  "mode": "som"
-}
-```
-Returns: Screenshot with numbered overlays on every interactive element + accessibility tree.
-
-**When to use:** Before every interaction. The numbered overlays are your map.
-
-#### Plain Screenshot
-```json
-{
-  "action": "capture",
-  "mode": "vision"
-}
-```
-Returns: Plain screenshot without overlays.
-
-**When to use:** When you just need to see what's on screen, not interact.
-
-#### Accessibility Tree Only
-```json
-{
-  "action": "capture",
-  "mode": "ax"
-}
-```
-Returns: Text-only accessibility tree (no image).
-
-**When to use:** When you need to read UI structure but don't need visual confirmation.
-
-#### App-Specific Capture
-```json
-{
-  "action": "capture",
-  "mode": "som",
-  "app": "Safari"
-}
-```
-**When to use:** When working with a specific app. Accepts app name or bundle ID (e.g., "com.apple.Safari").
-
-#### Limit Element Count
-```json
-{
-  "action": "capture",
-  "mode": "som",
-  "max_elements": 200
-}
-```
-**When to use:** Dense UIs (VS Code, Obsidian, IDEs) can return 500+ elements. Cap to prevent context overflow.
-
-### Click Actions
-
-#### Click by Element (Strongly Preferred)
-```json
-{
-  "action": "click",
-  "element": 42
-}
-```
-**Always use this over coordinates.** Element indices come from `capture(mode='som')`.
-
-#### Click with Modifiers
-```json
-{
-  "action": "click",
-  "element": 42,
-  "modifiers": ["cmd", "shift"]
-}
-```
-Available modifiers: `cmd`, `shift`, `option`, `alt`, `ctrl`, `fn`
-
-#### Right Click
-```json
-{
-  "action": "right_click",
-  "element": 42
-}
+# Grant permissions (Accessibility + Screen Recording)
+cua-driver permissions grant
 ```
 
-#### Double Click
-```json
-{
-  "action": "double_click",
-  "element": 42
-}
+## Core Principles
+
+1. **Snapshot before AND after every action.** Element indices go stale after any state change. Never reuse indices across turns.
+2. **Always prefer `element_index` over pixel coordinates.** AX actions are semantic and don't steal focus. Pixels are blind fallback.
+3. **Never use `open -a`, `osascript activate`, `cliclick`, or focus-stealing hotkeys (⌘L, ⌘⇧G).** These violate the background contract.
+4. **Use `launch_app` to start apps**, never `open`. It has FocusRestoreGuard.
+5. **The daemon must be running** for element-indexed workflows.
+
+## Session Lifecycle
+
+```bash
+# Start daemon (once per session — required for element_index caching)
+cua-driver serve &
+sleep 1
+cua-driver status  # verify running
+
+# Declare a session (optional but recommended for agent cursor tracking)
+cua-driver start_session '{"session":"my-task"}'
+
+# ... do work ...
+
+# Cleanup
+cua-driver end_session '{"session":"my-task"}'
+cua-driver stop
 ```
 
-#### Click by Coordinates (Fallback Only)
-```json
-{
-  "action": "click",
-  "coordinate": [100, 200]
-}
-```
-**Only use when no element index is available.** Coordinates are [x, y] in logical screen space.
+## Canonical Workflow
 
-### Drag Actions
+```bash
+# 1. Launch the target app (no focus steal)
+cua-driver launch_app '{"bundle_id":"com.apple.finder"}'
+# → {"pid":844, "windows":[{"window_id":6123, "title":"Downloads", ...}]}
 
-#### Drag Between Elements
-```json
-{
-  "action": "drag",
-  "from_element": 10,
-  "to_element": 20
-}
+# 2. Snapshot — read UI state, cache element indices
+cua-driver get_window_state '{"pid":844,"window_id":6123}'
+# → tree_markdown + elements[] + screenshot
+
+# 3. Act — click/type by element index
+cua-driver click '{"pid":844,"window_id":6123,"element_index":14}'
+
+# 4. Verify — snapshot again to confirm
+cua-driver get_window_state '{"pid":844,"window_id":6123}'
 ```
 
-#### Drag by Coordinates (Fallback)
-```json
-{
-  "action": "drag",
-  "from_coordinate": [100, 200],
-  "to_coordinate": [300, 400]
-}
+## Finding Your Target
+
+```bash
+# List all running apps
+cua-driver list_apps '{}'
+
+# List windows for a specific app
+cua-driver list_windows '{"pid":844}'
+
+# Find a window by title (use list_windows + grep)
+cua-driver list_windows '{}' | python3 -c "
+import sys,json
+d=json.load(sys.stdin)
+for w in d.get('windows',[]):
+    print(f'pid={w[\"pid\"]} wid={w[\"window_id\"]} {w[\"app_name\"]}: {w[\"title\"]}')
+"
+
+# Launch by bundle_id (preferred) or name
+cua-driver launch_app '{"bundle_id":"com.tinyspeck.slackmacgap"}'
+cua-driver launch_app '{"name":"Slack"}'
 ```
 
-### Scroll Actions
+## Actions
 
-```json
-{
-  "action": "scroll",
-  "element": 42,
-  "direction": "down",
-  "amount": 5
-}
+### Reading State
+
+```bash
+# Full window state — AX tree + screenshot (DEFAULT)
+cua-driver get_window_state '{"pid":844,"window_id":6123}'
+
+# AX tree only (no screenshot — cheaper, use before clicking)
+cua-driver get_window_state '{"pid":844,"window_id":6123,"capture_mode":"ax"}'
+
+# Screenshot only (visual inspection, no tree)
+cua-driver get_window_state '{"pid":844,"window_id":6123,"capture_mode":"vision"}'
+
+# Full desktop screenshot
+cua-driver get_desktop_state '{}'
+
+# Filter tree for specific elements
+cua-driver get_window_state '{"pid":844,"window_id":6123,"query":"download"}'
+
+# Write screenshot to file (instead of base64)
+cua-driver get_window_state '{"pid":844,"window_id":6123,"screenshot_out_file":"~/screen.png"}'
 ```
-- **direction**: `up`, `down`, `left`, `right`
-- **amount**: Wheel ticks (default: 3)
 
-### Keyboard Actions
+### Clicking
 
-#### Type Text
-```json
-{
-  "action": "type",
-  "text": "Hello, world!"
-}
+```bash
+# By element index (PREFERRED — semantic, no focus steal)
+cua-driver click '{"pid":844,"window_id":6123,"element_index":14}'
+
+# Double click
+cua-driver double_click '{"pid":844,"window_id":6123,"element_index":5}'
+
+# Right click
+cua-driver right_click '{"pid":844,"window_id":6123,"element_index":5}'
+
+# By pixel coords (FALLBACK — for canvas/webview only)
+cua-driver click '{"pid":844,"window_id":6123,"x":450,"y":280}'
+
+# Click with modifier
+cua-driver click '{"pid":844,"window_id":6123,"element_index":14,"modifier":["cmd"]}'
 ```
-Respects current keyboard layout. Types at current cursor position.
 
-#### Press Key Combinations
-```json
-{
-  "action": "key",
-  "keys": "cmd+s"
-}
+### Typing
+
+```bash
+# Type into focused field
+cua-driver type_text '{"pid":844,"text":"Hello world","window_id":6123}'
+
+# Type into a specific field by element index
+cua-driver type_text '{"pid":844,"text":"search term","window_id":6123,"element_index":5}'
+
+# Character-by-character (for finicky apps)
+cua-driver type_text_chars '{"pid":844,"text":"slow typing","window_id":6123,"delay_ms":50}'
+
+# Set value directly via AX (bypasses keyboard — for minimized windows)
+cua-driver set_value '{"pid":844,"window_id":6123,"element_index":5,"value":"Jane Doe"}'
 ```
-Examples: `cmd+s`, `ctrl+alt+t`, `return`, `escape`, `tab`
 
-Use `+` to combine keys.
+### Keyboard
 
-### Set Value (Advanced)
+```bash
+# Single key
+cua-driver press_key '{"pid":844,"key":"return","window_id":6123}'
+cua-driver press_key '{"pid":844,"key":"escape","window_id":6123}'
 
-#### Set Dropdown/Select Value
-```json
-{
-  "action": "set_value",
-  "element": 42,
-  "value": "Blue"
-}
+# Hotkey (modifier combo)
+cua-driver hotkey '{"pid":844,"keys":["cmd","c"],"window_id":6123}'
+cua-driver hotkey '{"pid":844,"keys":["cmd","s"],"window_id":6123}'
+
+# ⚠️ NEVER use these hotkeys — they steal focus:
+# ["cmd","l"] — omnibox focus
+# ["cmd","shift","g"] — go to folder
+# ["cmd","1".."9"] — tab switching
 ```
-**When to use:** For AXPopUpButton / select dropdowns. Pass the option's display label. This selects the option directly without opening the native menu (no focus steal).
 
-#### Set Slider Value
-```json
-{
-  "action": "set_value",
-  "element": 42,
-  "value": "50"
-}
+### Scrolling
+
+```bash
+cua-driver scroll '{"pid":844,"direction":"down","amount":5,"window_id":6123}'
+cua-driver scroll '{"pid":844,"direction":"page","by":"page","amount":1,"window_id":6123}'
 ```
-**When to use:** For sliders and other AXValue-settable elements.
+
+### Drag & Drop
+
+```bash
+cua-driver drag '{"pid":844,"from_x":100,"from_y":200,"to_x":300,"to_y":400,"window_id":6123}'
+```
+
+### Browser/Electron Apps
+
+For Chromium/Electron apps (Slack, Chrome, VS Code) where AX tree is sparse, use the `page` tool:
+
+```bash
+# Read page text (fastest)
+cua-driver page '{"action":"get_text","pid":844,"window_id":6123}'
+
+# Query DOM elements
+cua-driver page '{"action":"query_dom","pid":844,"window_id":6123,"css_selector":"button","attributes":["class"]}'
+
+# Click a DOM element
+cua-driver page '{"action":"click_element","pid":844,"window_id":6123,"selector":"button.submit"}'
+
+# Execute JavaScript
+cua-driver page '{"action":"execute_javascript","pid":844,"window_id":6123,"javascript":"document.title"}'
+```
 
 ### App Management
 
-#### List Running Apps
-```json
-{
-  "action": "list_apps"
-}
-```
-Returns: Array of running applications with name, PID, bundle ID.
+```bash
+# Kill an app (ask user first)
+cua-driver kill_app '{"pid":844}'
 
-#### Focus App (Background Mode)
-```json
-{
-  "action": "focus_app",
-  "app": "Safari"
-}
-```
-Routes input to the app without raising the window. User's current app stays in front.
-
-#### Focus App (Disruptive Mode)
-```json
-{
-  "action": "focus_app",
-  "app": "Safari",
-  "raise_window": true
-}
-```
-**Warning:** Brings window to front. Disrupts user. Only use when explicitly requested.
-
-### Utility Actions
-
-#### Wait
-```json
-{
-  "action": "wait",
-  "seconds": 2
-}
-```
-Max: 30 seconds.
-
-#### Capture After Action
-```json
-{
-  "action": "click",
-  "element": 42,
-  "capture_after": true
-}
-```
-Takes a follow-up screenshot after the action. Saves a round-trip for verification.
-
-## Safety & Approval
-
-### Always Allowed (No Approval)
-- `capture` (all modes)
-- `list_apps`
-- `wait`
-
-### Requires Approval
-All interaction actions: `click`, `double_click`, `right_click`, `middle_click`, `drag`, `scroll`, `type`, `key`, `set_value`, `focus_app`
-
-### Hard-Blocked (Never Allowed)
-
-**Key combinations:**
-- `cmd+shift+backspace` - Empty trash
-- `cmd+option+backspace` - Force delete
-- `cmd+ctrl+q` - Lock screen
-- `cmd+shift+q` - Log out
-- `cmd+option+shift+q` - Force log out
-
-**Type patterns:**
-- `curl ... | bash` or `curl ... | sh`
-- `wget ... | bash`
-- `sudo rm -rf`
-- `rm -rf /`
-- Fork bombs
-
-## Common Patterns
-
-### Pattern 1: Click a Button
-```
-1. capture(mode='som') → See numbered overlays
-2. Identify button (e.g., element #15)
-3. click(element=15)
-4. capture(mode='som', capture_after=true) → Verify
+# Zoom into a region of a window for higher detail
+cua-driver zoom '{"window_id":6123,"pid":844,"x1":0,"y1":0,"x2":500,"y2":400}'
 ```
 
-### Pattern 2: Fill a Form
-```
-1. capture(mode='som')
-2. click(element=<first_field>)
-3. type(text="John Doe")
-4. key(keys="tab")
-5. type(text="john@example.com")
-6. click(element=<submit_button>)
-```
+## Minimized Windows
 
-### Pattern 3: Select from Dropdown
-```
-1. capture(mode='som')
-2. set_value(element=<dropdown>, value="Option Name")
-   OR
-2. click(element=<dropdown>)
-3. wait(seconds=0.5)
-4. capture(mode='som')
-5. click(element=<option>)
-```
+Actions on minimized windows have limitations:
+- `press_key("return")` silently no-ops — use `set_value` or click a button instead
+- Use `set_value` to fill fields — it bypasses the keyboard entirely
+- Windows still have valid `window_id` even when minimized
 
-### Pattern 4: Work with Specific App
-```
-1. list_apps() → Find app name/PID
-2. focus_app(app="AppName")
-3. capture(mode='som', app="AppName")
-4. [interact with app]
-```
+## Common Bundle IDs
 
-### Pattern 5: Scroll and Search
-```
-1. capture(mode='som')
-2. scroll(element=<scrollable_area>, direction="down", amount=5)
-3. capture(mode='som')
-4. [repeat until target found]
-```
+| App | Bundle ID |
+|-----|-----------|
+| Slack | `com.tinyspeck.slackmacgap` |
+| Finder | `com.apple.finder` |
+| Safari | `com.apple.Safari` |
+| Chrome | `com.google.Chrome` |
+| Mail | `com.apple.mail` |
+| Terminal | `com.apple.Terminal` |
+| Notes | `com.apple.Notes` |
+| Calendar | `com.apple.calendar` |
+| Xcode | `com.apple.dt.Xcode` |
+
+Find bundle IDs: `cua-driver list_apps '{}' | python3 -c "import sys,json; [print(f'{a[\"bundle_id\"]}: {a[\"name\"]}') for a in json.load(sys.stdin).get('apps',[])]"`
 
 ## Troubleshooting
 
-### "Element not found"
-- The UI changed between capture and action
-- Solution: Capture again immediately before acting
-
-### "Too many elements" / Context overflow
-- Dense UI (IDE, Electron app) returned 500+ elements
-- Solution: Use `max_elements` parameter or target specific app
-
-### "Action had no effect"
-- Wrong element targeted
-- Solution: Verify element index from latest capture
-
-### "Focus stolen" / User disrupted
-- Used `raise_window=true` or clicked wrong window
-- Solution: Always use `raise_window=false` (default)
-
-### Coordinates not working
-- Screen resolution changed or window moved
-- Solution: Always use element-based targeting, never coordinates
-
-## Advanced Techniques
-
-### Multi-Step Verification
-```json
-{
-  "action": "click",
-  "element": 42,
-  "capture_after": true
-}
-```
-Combines action + verification in one call. Saves a round-trip.
-
-### App-Scoped Operations
-When working with a specific app for multiple actions:
-```
-1. focus_app(app="Safari")
-2. All subsequent captures/actions automatically scoped to Safari
-```
-
-### Dense UI Handling
-For apps with 500+ UI elements:
-```
-1. capture(mode='som', app="VS Code", max_elements=100)
-2. If target not found, increase max_elements or narrow scope
-```
-
-### Background Automation
-All actions work on hidden/minimized windows:
-```
-1. focus_app(app="Mail", raise_window=false)
-2. capture(mode='som', app="Mail")
-3. [automate without bringing Mail to front]
-```
-
-## Limitations
-
-- **macOS only** - Uses private Apple APIs
-- **Requires cua-driver** - Must be installed separately
-- **30-second timeout** - Per operation
-- **Max 1000 elements** - Per accessibility tree capture
-- **Private APIs** - Can break on OS updates
-
-## Installation
-
-If computer_use tool is not available:
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/trycua/cua/main/libs/cua-driver/scripts/install.sh)"
+# Check daemon status
+cua-driver status
+
+# Check permissions
+cua-driver permissions status
+
+# Diagnose environment
+cua-driver doctor
+
+# List all available tools
+cua-driver list-tools
+
+# Get schema for a specific tool
+cua-driver describe get_window_state
 ```
 
-Or run: `hermes tools` and enable Computer Use toolset.
+## Navigation via AppleScript + cua-driver
 
-## When to Use This Skill
+For opening specific views in apps (like switching Slack channels), use AppleScript for navigation then cua-driver for interaction:
 
-✅ **Use when:**
-- Automating native macOS apps (Mail, Calendar, Finder, etc.)
-- Filling forms in desktop applications
-- Testing UI workflows
-- Reading UI state from background apps
-- Chaining actions across multiple apps
+```bash
+# Navigate via AppleScript (Cmd+K → type → Enter)
+osascript -e 'tell application "Slack" to activate' -e 'delay 0.3' -e 'tell application "System Events" to keystroke "k" using command down' -e 'delay 0.2' -e 'tell application "System Events" to keystroke "general"' -e 'delay 0.3' -e 'tell application "System Events" to key code 36'
 
-❌ **Don't use when:**
-- Web automation (use browser tool instead)
-- Simple file operations (use file tools)
-- Terminal commands (use terminal tool)
-- The user is actively working in the target app (wait or ask first)
-
-## Examples
-
-### Example 1: Open Safari and Navigate
+# Then read and interact with cua-driver
+PID=$(pgrep -x Slack)
+cua-driver get_window_state "{\"pid\":$PID,\"window_id\":$(cua-driver list_windows "{\"pid\":$PID}" | python3 -c "import sys,json; print(json.load(sys.stdin)['windows'][0]['window_id'])}")}"
 ```
-User: "Open Safari and go to github.com"
-
-1. list_apps() → Check if Safari is running
-2. focus_app(app="Safari", raise_window=true)
-3. wait(seconds=1)
-4. capture(mode='som', app="Safari")
-5. click(element=<address_bar>)
-6. type(text="github.com")
-7. key(keys="return")
-```
-
-### Example 2: Read Notification
-```
-User: "What does my latest notification say?"
-
-1. capture(mode='som')
-2. [Identify notification element from overlays]
-3. capture(mode='ax') → Get text content
-4. [Parse and report notification text]
-```
-
-### Example 3: Fill Form in Background
-```
-User: "Fill out the registration form in the app behind my browser"
-
-1. list_apps() → Find target app
-2. focus_app(app="RegistrationApp", raise_window=false)
-3. capture(mode='som', app="RegistrationApp")
-4. click(element=<name_field>)
-5. type(text="John Doe")
-6. [continue filling form]
-7. click(element=<submit_button>, capture_after=true)
-```
-
-## Best Practices
-
-1. **Always capture before acting** - UI state changes constantly
-2. **Use element indices, not coordinates** - 10x more reliable
-3. **Verify after destructive actions** - Use `capture_after=true`
-4. **Scope to specific apps** - Reduces element count and improves accuracy
-5. **Never raise windows unless asked** - Respect user's workflow
-6. **Wait after UI changes** - Give animations time to complete (0.5-1s)
-7. **Handle dense UIs carefully** - Use `max_elements` to prevent context overflow
-8. **Check approval requirements** - Warn user before destructive actions
-
-## Related Skills
-
-- **browser-control.md** - For web automation (Chrome/Safari tabs)
-- **terminal_tool** - For shell commands
-- **file_tools** - For file operations
-
----
-
-**Remember:** This is a powerful tool. Always capture first, target by element, and verify after. Never guess coordinates.

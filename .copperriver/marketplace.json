@@ -21,14 +21,8 @@
     },
     {
       "name": "computer-use",
-      "description": "Universal macOS desktop automation",
+      "description": "Universal macOS desktop automation via cua-driver. Background control of native apps without stealing focus.",
       "source": "./skills/official/computer-use",
-      "category": "system"
-    },
-    {
-      "name": "computer-use-quick-ref",
-      "description": "Quick reference for desktop automation",
-      "source": "./skills/official/computer-use-quick-ref",
       "category": "system"
     },
     {
