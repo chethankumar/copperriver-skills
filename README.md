@@ -57,7 +57,7 @@ The standard frontmatter (`name` + `description`) is the cross-tool compatible c
 
 ## Available Skills
 
-### Official (8)
+### Official (9)
 | Name | Category | Description |
 |------|----------|-------------|
 | browser-control | browser | Control CopperRiver browser tabs via CDP |
@@ -103,5 +103,6 @@ Some skills are adapted from community projects:
 | Skill | Author | Repo | License |
 |-------|--------|------|---------|
 | open-montage | Calesthio Labs | [OpenMontage](https://github.com/calesthio/OpenMontage) | AGPL-3.0 |
+| codebase-memory | DeusData | [codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) | MIT |
 
 These skills include attribution in their frontmatter (`author`, `author-url`, `upstream-repo`) and in the skill body itself.
