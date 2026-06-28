@@ -96,6 +96,12 @@
       "description": "Senior UI/UX engineering guidelines (community)",
       "source": "./skills/community/design-taste-frontend",
       "category": "coding"
+    },
+    {
+      "name": "open-montage",
+      "description": "Agentic video production system. Research, script, generate, narrate, edit, and render videos through structured pipelines.",
+      "source": "./skills/official/open-montage",
+      "category": "media"
     }
   ]
 }
